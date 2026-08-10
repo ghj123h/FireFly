@@ -1,0 +1,184 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type RELEASE to confirm publishing the committed version
+        required: true
+        type: string
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      tag: ${{ steps.release.outputs.tag }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Validate release request
+        id: release
+        shell: pwsh
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if ($env:GITHUB_REF -ne "refs/heads/main") {
+              throw "Releases must be dispatched from main."
+          }
+          if ($env:CONFIRMATION -cne "RELEASE") {
+              throw "The confirmation input must be exactly RELEASE."
+          }
+
+          [xml]$project = Get-Content -LiteralPath "FireFly/FireFly.csproj" -Raw
+          $version = $project.Project.PropertyGroup.Version | Select-Object -First 1
+          if ([string]::IsNullOrWhiteSpace($version)) {
+              throw "FireFly.csproj does not contain a package version."
+          }
+
+          $changelog = Get-Content -LiteralPath "CHANGELOG.md" -Raw
+          $heading = "## [$version]"
+          if (-not $changelog.Contains($heading, [StringComparison]::Ordinal)) {
+              throw "CHANGELOG.md does not contain $heading."
+          }
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+          "prerelease=$($version.Contains('-').ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+
+  publish:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 9.0.304
+
+      - name: Restore
+        run: dotnet restore FireFly.sln
+
+      - name: Build
+        run: dotnet build FireFly.sln -c Release --no-restore -p:GeneratePackageOnBuild=false -p:ContinuousIntegrationBuild=true
+
+      - name: Run smoke tests
+        shell: pwsh
+        run: ./test.ps1 -Configuration Release
+
+      - name: Verify expanded source
+        shell: pwsh
+        run: ./verify-combined.ps1 -Configuration Release
+
+      - name: Pack
+        run: dotnet pack FireFly/FireFly.csproj -c Release --no-build --no-restore -o artifacts/packages -p:RepositoryCommit=${{ github.sha }} -p:ContinuousIntegrationBuild=true
+
+      - name: Verify packed package
+        shell: pwsh
+        run: ./verify-package.ps1 -Configuration Release
+
+      - name: Prepare release notes
+        shell: pwsh
+        env:
+          VERSION: ${{ needs.validate.outputs.version }}
+        run: |
+          $changelog = Get-Content -LiteralPath "CHANGELOG.md" -Raw
+          $escaped = [Regex]::Escape($env:VERSION)
+          $match = [Regex]::Match(
+              $changelog,
+              "(?ms)^## \[$escaped\].*?\r?\n(?<notes>.*?)(?=^## \[|\z)")
+          if (-not $match.Success) {
+              throw "Could not extract release notes for $env:VERSION."
+          }
+          $match.Groups["notes"].Value.Trim() |
+              Set-Content -LiteralPath (Join-Path $env:RUNNER_TEMP "release-notes.md")
+
+      - name: Create or verify tag
+        shell: pwsh
+        env:
+          TAG: ${{ needs.validate.outputs.tag }}
+        run: |
+          $existing = git rev-list -n 1 $env:TAG 2>$null
+          if ($LASTEXITCODE -eq 0) {
+              if ($existing -ne $env:GITHUB_SHA) {
+                  throw "$env:TAG already points to $existing instead of $env:GITHUB_SHA."
+              }
+              Write-Host "$env:TAG already points to this commit."
+              exit 0
+          }
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a $env:TAG -m "Release $env:TAG"
+          git push origin $env:TAG
+
+      - name: Log in to NuGet with Trusted Publishing
+        id: nuget
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          user: ghj123h
+
+      - name: Publish NuGet package
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY }}
+        run: |
+          $packages = @(Get-ChildItem -LiteralPath "artifacts/packages" -Filter "*.nupkg")
+          if ($packages.Count -ne 1) {
+              throw "Expected exactly one NuGet package, found $($packages.Count)."
+          }
+          dotnet nuget push $packages[0].FullName `
+              --api-key $env:NUGET_API_KEY `
+              --source https://api.nuget.org/v3/index.json `
+              --skip-duplicate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Create or update GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.validate.outputs.tag }}
+          VERSION: ${{ needs.validate.outputs.version }}
+          PRERELEASE: ${{ needs.validate.outputs.prerelease }}
+        run: |
+          $package = Get-ChildItem -LiteralPath "artifacts/packages" -Filter "*.nupkg" |
+              Select-Object -First 1
+          $notes = Join-Path $env:RUNNER_TEMP "release-notes.md"
+
+          gh release view $env:TAG *> $null
+          if ($LASTEXITCODE -eq 0) {
+              gh release upload $env:TAG $package.FullName --clobber
+              if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+              Write-Host "GitHub release $env:TAG already exists; package asset updated."
+              exit 0
+          }
+
+          $arguments = @(
+              "release", "create", $env:TAG, $package.FullName,
+              "--title", "Soy.FireFly $env:VERSION",
+              "--notes-file", $notes,
+              "--verify-tag")
+          if ($env:PRERELEASE -eq "true") {
+              $arguments += "--prerelease"
+          }
+          & gh @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>true</IsPackable>
+    <PackageId>Soy.FireFly</PackageId>
+    <Title>FireFly</Title>
+    <Version>0.1.0-alpha.1</Version>
+    <Authors>Soy</Authors>
+    <Copyright>Copyright (c) 2026 Soy</Copyright>
+    <Description>C# 13 algorithms for competitive programming with SourceExpander support.</Description>
+    <PackageTags>competitive-programming;algorithms;csharp;sourceexpander;library-checker</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/ghj123h/FireFly</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/ghj123h/FireFly</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ac-library-csharp" Version="4.1.3" />
+    <PackageReference Include="SourceExpander.Embedder" Version="9.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" Link="README.md" />
+    <None Include="..\README.zh-CN.md" Pack="true" PackagePath="\" Link="README.zh-CN.md" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" Link="LICENSE" />
+    <None Include="..\CHANGELOG.md" Pack="true" PackagePath="\" Link="CHANGELOG.md" />
+    <None Include="..\THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="\" Link="THIRD-PARTY-NOTICES.md" />
+  </ItemGroup>
+
+</Project>

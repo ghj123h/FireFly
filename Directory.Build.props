@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>13</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);EMBED0004</NoWarn>
+  </PropertyGroup>
+</Project>
