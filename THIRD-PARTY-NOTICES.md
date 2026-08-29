@@ -19,3 +19,10 @@ The upstream repository states that files outside `Source/ac-library-csharp` are
 - License: [MIT](https://github.com/kzrnm/SourceExpander/blob/v9.1.2/LICENSE)
 
 FireFly uses SourceExpander as a build-time source embedder and generator. The `SourceExpander.Embedder` package is a private build dependency and is not exposed as a runtime dependency of `Soy.FireFly`.
+
+## ei1333/library
+
+- Project: [ei1333/library](https://github.com/ei1333/library)
+- License: [The Unlicense](https://github.com/ei1333/library/blob/master/LICENSE)
+
+The formal power series composition and transposed NTT implementation in `FireFly/Poly/Composition.cs` is adapted from this project. The source is released into the public domain under The Unlicense.

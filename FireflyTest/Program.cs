@@ -463,6 +463,42 @@ static void TestPoly() {
         if (expected[i] != 0) throw new Exception($"Poly.CompInv failed at {i}.");
     }
 
+    Z[] shiftSample = new Z[n];
+    new Z[] { 1, 2, 3, 4, 5 }.CopyTo(shiftSample, 0);
+    Poly<Mod998244353> shifted = new Poly<Mod998244353>(shiftSample).Shift(3);
+    expected = new Z[n];
+    new Z[] { 547, 668, 309, 64, 5 }.CopyTo(expected, 0);
+    CheckPoly("Poly.Shift sample", expected, shifted.AsSpan());
+
+    Z[] compSample = new Z[n];
+    Z[] innerSample = new Z[n];
+    new Z[] { 5, 4, 3, 2, 1 }.CopyTo(compSample, 0);
+    new Z[] { 0, 1, 2, 3, 4 }.CopyTo(innerSample, 0);
+    Poly<Mod998244353> composed = new Poly<Mod998244353>(compSample)
+        .Comp(new Poly<Mod998244353>(innerSample));
+    expected = Compose(compSample, innerSample);
+    CheckPoly("Poly.Comp sample", expected, composed.AsSpan());
+
+    for (int e = 0; e <= 6; ++e) {
+        int len = 1 << e;
+        for (int t = 0; t < 8; ++t) {
+            Z[] outer = RandomPoly(rnd, len);
+            Z[] inner = RandomPoly(rnd, len);
+            inner[0] = 0;
+            Z[] outerCopy = (Z[])outer.Clone();
+            Z[] innerCopy = (Z[])inner.Clone();
+            Z c = rnd.Next(20);
+            Poly<Mod998244353> f = new(outer);
+            Poly<Mod998244353> g = new(inner);
+            shifted = f.Shift(c);
+            composed = f.Comp(g);
+            CheckPoly($"Poly.Shift random n={len} t={t}", NaiveShift(outer, c), shifted.AsSpan());
+            CheckPoly($"Poly.Comp random n={len} t={t}", Compose(outer, inner), composed.AsSpan());
+            CheckPoly($"Poly.Shift/Comp outer input n={len} t={t}", outerCopy, outer);
+            CheckPoly($"Poly.Comp inner input n={len} t={t}", innerCopy, inner);
+        }
+    }
+
     Z[] points = RandomPoly(rnd, 13);
     Z[] values = pa.Eval(points);
     for (int i = 0; i < points.Length; ++i) {
@@ -540,6 +576,22 @@ static Z[] Compose(ReadOnlySpan<Z> f, ReadOnlySpan<Z> g) {
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) res[j] += f[i] * pow[j];
         pow = NaiveMul(pow, g);
+    }
+    return res;
+}
+
+static Z[] NaiveShift(ReadOnlySpan<Z> f, Z c) {
+    int n = f.Length;
+    Z[] res = new Z[n], pow = new Z[n];
+    pow[0] = 1;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) res[j] += f[i] * pow[j];
+        Z[] next = new Z[n];
+        for (int j = 0; j < n; ++j) {
+            next[j] += pow[j] * c;
+            if (j + 1 < n) next[j + 1] += pow[j];
+        }
+        pow = next;
     }
     return res;
 }
