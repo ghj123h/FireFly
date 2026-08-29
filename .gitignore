@@ -14,6 +14,7 @@ TestResults/
 *.snupkg
 
 # Generated SourceExpander submission
+FireFly.Smoke/Combined.csx
 FireflyTest/Combined.csx
 
 # Local reports, scratch data, and backups

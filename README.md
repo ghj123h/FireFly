@@ -51,7 +51,7 @@ The contest project must reference both FireFly and the `SourceExpander` generat
 - Bit-mask, array, and dictionary helpers.
 - Modular combinatorics and polynomial algorithms built around `ac-library-csharp` types.
 
-The `FireflyTest` project provides the repository's smoke and regression checks and exercises SourceExpander generation.
+`FireFly.Tests` contains the xUnit regression suite. `FireFly.Smoke` is a small, self-contained SourceExpander and NuGet consumer check.
 
 ## Compatibility
 

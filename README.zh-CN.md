@@ -51,7 +51,7 @@ Console.WriteLine(string.Join(" ", order!));
 - 位掩码、数组和字典辅助方法。
 - 以 `ac-library-csharp` 类型为基础的模意义下的组合数学与多项式算法。
 
-`FireflyTest` 项目包含本仓库的冒烟测试和回归检查，同时会验证 SourceExpander 的源码生成功能。
+`FireFly.Tests` 包含 xUnit 回归测试；`FireFly.Smoke` 是用于验证 SourceExpander 和 NuGet 消费方式的小型自包含程序。
 
 ## 兼容性
 
