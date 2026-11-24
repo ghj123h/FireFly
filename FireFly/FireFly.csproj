@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -8,7 +8,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>Soy.FireFly</PackageId>
     <Title>FireFly</Title>
-    <Version>0.1.0-alpha.1</Version>
+    <Version>0.1.0-alpha.2</Version>
     <Authors>Soy</Authors>
     <Copyright>Copyright (c) 2026 Soy</Copyright>
     <Description>C# 13 algorithms for competitive programming with SourceExpander support.</Description>

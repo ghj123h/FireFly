@@ -8,14 +8,14 @@ FireFly is a compact C# 13 algorithm library for competitive programming. It kee
 
 ## Installation
 
-The NuGet package ID is `Soy.FireFly`, and the first release is `0.1.0-alpha.1`. When that version is available on NuGet, install it together with SourceExpander:
+The NuGet package ID is `Soy.FireFly`. Install the current prerelease together with SourceExpander:
 
 ```sh
-dotnet add path/to/Contest.csproj package Soy.FireFly --version 0.1.0-alpha.1
+dotnet add path/to/Contest.csproj package Soy.FireFly --version 0.1.0-alpha.2
 dotnet add path/to/Contest.csproj package SourceExpander --version 9.1.2
 ```
 
-If the version has not been published yet, or when developing against a local checkout, clone this repository and use a project reference instead of the `Soy.FireFly` package command:
+When developing against a local checkout, clone this repository and use a project reference instead of the `Soy.FireFly` package command:
 
 ```sh
 dotnet add path/to/Contest.csproj reference path/to/FireFly/FireFly.csproj
