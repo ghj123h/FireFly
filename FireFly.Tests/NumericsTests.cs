@@ -1,63 +1,53 @@
-using AtCoder;
+using System.Numerics;
 using Xunit;
-using Z = AtCoder.StaticModInt<AtCoder.Mod998244353>;
 
 namespace FireFly.Tests;
 
 public class NumericsTests {
-    [Fact]
-    public void InversesCacheAndGrow() {
-        ReadOnlySpan<Z> first = Numerics.GetInvs<Mod998244353>(4);
-        Assert.Equal(5, first.Length);
-        Assert.Equal((Z)0, first[0]);
-        for (int i = 1; i < first.Length; ++i) Assert.Equal((Z)1, first[i] * i);
+    [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(0, 30, 30)]
+    [InlineData(30, 0, 30)]
+    [InlineData(-30, 0, 30)]
+    [InlineData(84, 30, 6)]
+    [InlineData(30, 84, 6)]
+    [InlineData(-84, 30, 6)]
+    [InlineData(84, -30, 6)]
+    [InlineData(-84, -30, 6)]
+    [InlineData(17, 13, 1)]
+    [InlineData(48, 48, 48)]
+    [InlineData(1836311903, 1134903170, 1)]
+    public void Gcd(int a, int b, int expected) {
+        Assert.Equal(expected, Numerics.Gcd(a, b));
+    }
 
-        ReadOnlySpan<Z> grown = Numerics.GetInvs<Mod998244353>(1000);
-        for (int i = 1; i < grown.Length; ++i) Assert.Equal((Z)1, grown[i] * i);
-        for (int i = 1; i < first.Length; ++i) Assert.Equal((Z)1, first[i] * i);
-
-        ReadOnlySpan<Z> prefix = Numerics.GetInvs<Mod998244353>(7);
-        Assert.Equal(8, prefix.Length);
-
-        ReadOnlySpan<StaticModInt<Mod1000000007>> other = Numerics.GetInvs<Mod1000000007>(50);
-        for (int i = 1; i < other.Length; ++i) {
-            Assert.Equal((StaticModInt<Mod1000000007>)1, other[i] * i);
-        }
+    [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(0, 30, 0)]
+    [InlineData(30, 0, 0)]
+    [InlineData(84, 30, 420)]
+    [InlineData(30, 84, 420)]
+    [InlineData(-84, 30, 420)]
+    [InlineData(84, -30, 420)]
+    [InlineData(-84, -30, 420)]
+    [InlineData(17, 13, 221)]
+    [InlineData(48, 48, 48)]
+    [InlineData(1000000000, 2000000000, 2000000000)]
+    public void Lcm(int a, int b, int expected) {
+        Assert.Equal(expected, Numerics.Lcm(a, b));
     }
 
     [Fact]
-    public void FactorialsAndInverseFactorialsCacheAndGrow() {
-        ReadOnlySpan<Z> facts = Numerics.GetFacts<Mod998244353>(5);
-        Assert.Equal(6, facts.Length);
-        Assert.Equal((Z)1, facts[0]);
-        for (int i = 1; i < facts.Length; ++i) Assert.Equal(facts[i - 1] * i, facts[i]);
+    public void GcdAndLcmSupportDifferentNumericTypes() {
+        Assert.Equal(6L, Numerics.Gcd(84L, 30L));
+        Assert.Equal(420L, Numerics.Lcm(84L, 30L));
+        Assert.Equal(6UL, Numerics.Gcd(84UL, 30UL));
+        Assert.Equal(420UL, Numerics.Lcm(84UL, 30UL));
+        Assert.Equal((Int128)6, Numerics.Gcd((Int128)84, (Int128)30));
+        Assert.Equal((Int128)420, Numerics.Lcm((Int128)84, (Int128)30));
 
-        ReadOnlySpan<Z> invFacts = Numerics.GetInvFacts<Mod998244353>(5);
-        for (int i = 0; i < invFacts.Length; ++i) Assert.Equal((Z)1, facts[i] * invFacts[i]);
-
-        ReadOnlySpan<Z> grownFacts = Numerics.GetFacts<Mod998244353>(1000);
-        ReadOnlySpan<Z> grownInvFacts = Numerics.GetInvFacts<Mod998244353>(1000);
-        for (int i = 0; i < grownFacts.Length; ++i) {
-            Assert.Equal((Z)1, grownFacts[i] * grownInvFacts[i]);
-        }
-        for (int i = 0; i < facts.Length; ++i) Assert.Equal((Z)1, facts[i] * invFacts[i]);
-    }
-
-    [Fact]
-    public void Binom() {
-        Assert.Equal((Z)10, Numerics.Binom<Mod998244353>(5, 2));
-        Assert.Equal((Z)1, Numerics.Binom<Mod998244353>(5, 0));
-        Assert.Equal((Z)1, Numerics.Binom<Mod998244353>(5, 5));
-        Assert.Equal((Z)0, Numerics.Binom<Mod998244353>(5, -1));
-        Assert.Equal((Z)0, Numerics.Binom<Mod998244353>(5, 6));
-    }
-
-    [Fact]
-    public void Perm() {
-        Assert.Equal((Z)20, Numerics.Perm<Mod998244353>(5, 2));
-        Assert.Equal((Z)1, Numerics.Perm<Mod998244353>(5, 0));
-        Assert.Equal((Z)120, Numerics.Perm<Mod998244353>(5, 5));
-        Assert.Equal((Z)0, Numerics.Perm<Mod998244353>(5, -1));
-        Assert.Equal((Z)0, Numerics.Perm<Mod998244353>(5, 6));
+        BigInteger a = BigInteger.One << 150;
+        Assert.Equal(3 * a, Numerics.Gcd(6 * a, 15 * a));
+        Assert.Equal(30 * a, Numerics.Lcm(6 * a, 15 * a));
     }
 }

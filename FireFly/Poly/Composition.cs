@@ -11,8 +11,8 @@ public ref partial struct Poly<TMod> where TMod : struct, IStaticMod {
     /// <returns>The shifted polynomial with the same truncation length.</returns>
     public Poly<TMod> Shift(StaticModInt<TMod> c) {
         int n = coef.Length;
-        ReadOnlySpan<StaticModInt<TMod>> fact = Numerics.GetFacts<TMod>(n - 1);
-        ReadOnlySpan<StaticModInt<TMod>> invFact = Numerics.GetInvFacts<TMod>(n - 1);
+        ReadOnlySpan<StaticModInt<TMod>> fact = Comb.GetFacts<TMod>(n - 1);
+        ReadOnlySpan<StaticModInt<TMod>> invFact = Comb.GetInvFacts<TMod>(n - 1);
         StaticModInt<TMod>[] a = new StaticModInt<TMod>[n];
         StaticModInt<TMod>[] b = new StaticModInt<TMod>[n];
         StaticModInt<TMod> p = 1;

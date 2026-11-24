@@ -39,7 +39,7 @@ public static class SparsePoly {
         where TMod : struct, IStaticMod {
         int n = 1 << k;
         StaticModInt<TMod>[] res = new StaticModInt<TMod>[n];
-        ReadOnlySpan<StaticModInt<TMod>> invs = Numerics.GetInvs<TMod>(n);
+        ReadOnlySpan<StaticModInt<TMod>> invs = ModMath.GetInvs<TMod>(n);
         res[0] = 1;
         for (int i = 1; i < n; ++i) {
             for (int j = 0; j < exp.Length && exp[j] <= i; ++j) {
@@ -62,7 +62,7 @@ public static class SparsePoly {
         where TMod : struct, IStaticMod {
         int n = 1 << k;
         StaticModInt<TMod>[] res = new StaticModInt<TMod>[n];
-        ReadOnlySpan<StaticModInt<TMod>> invs = Numerics.GetInvs<TMod>(n);
+        ReadOnlySpan<StaticModInt<TMod>> invs = ModMath.GetInvs<TMod>(n);
         for (int i = 1; i < n; ++i) {
             for (int j = 1; j < exp.Length && exp[j] <= i; ++j) {
                 res[i] -= res[i - exp[j]] * coef[j] * (i - exp[j]);
@@ -150,7 +150,7 @@ public static class SparsePoly {
         StaticModInt<TMod> ic,
         Span<StaticModInt<TMod>> res)
         where TMod : struct, IStaticMod {
-        ReadOnlySpan<StaticModInt<TMod>> invs = Numerics.GetInvs<TMod>(res.Length);
+        ReadOnlySpan<StaticModInt<TMod>> invs = ModMath.GetInvs<TMod>(res.Length);
         for (int i = 1; i < res.Length; ++i) {
             for (int j = 1; j < exp.Length; ++j) {
                 int e = exp[j] - z;

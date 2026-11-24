@@ -49,7 +49,7 @@ public ref partial struct Poly<TMod> where TMod : struct, IStaticMod {
         }
         Butterfly<TMod>.CalculateInv(res);
         StaticModInt<TMod> in2 = new StaticModInt<TMod>(n2).Inv();
-        ReadOnlySpan<StaticModInt<TMod>> invs = Numerics.GetInvs<TMod>(n);
+        ReadOnlySpan<StaticModInt<TMod>> invs = ModMath.GetInvs<TMod>(n);
         for (int i = 0; i < n; ++i) {
             res[i] *= in2;
         }
@@ -67,7 +67,7 @@ public ref partial struct Poly<TMod> where TMod : struct, IStaticMod {
         StaticModInt<TMod>[] res = new StaticModInt<TMod>[n << 1];
         StaticModInt<TMod>[] tmp = new StaticModInt<TMod>[n << 1];
         StaticModInt<TMod>[] tmp2 = new StaticModInt<TMod>[n << 1];
-        Numerics.GetInvs<TMod>(n);
+        ModMath.GetInvs<TMod>(n);
         res[0] = 1;
         for (int t = 2; t <= n; t <<= 1) {
             int t2 = t << 1;
@@ -162,7 +162,7 @@ public ref partial struct Poly<TMod> where TMod : struct, IStaticMod {
     public Poly<TMod> CompInv() {
         int n = coef.Length;
         StaticModInt<TMod> inv = coef[1].Inv();
-        ReadOnlySpan<StaticModInt<TMod>> invs = Numerics.GetInvs<TMod>(n);
+        ReadOnlySpan<StaticModInt<TMod>> invs = ModMath.GetInvs<TMod>(n);
         StaticModInt<TMod>[][] p = new StaticModInt<TMod>[n][];
         StaticModInt<TMod>[][] q = new StaticModInt<TMod>[n][];
         for (int i = 0; i < n; ++i) {
