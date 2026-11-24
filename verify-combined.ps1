@@ -7,10 +7,10 @@ $combined = if ($CombinedPath) {
     [IO.Path]::GetFullPath($CombinedPath)
 }
 else {
-    Join-Path $PSScriptRoot "FireflyTest\Combined.csx"
+    Join-Path $PSScriptRoot "FireFly.Smoke\Combined.csx"
 }
 if (-not (Test-Path -LiteralPath $combined)) {
-    throw "Combined.csx was not generated. Run FireflyTest first."
+    throw "Combined.csx was not generated. Run FireFly.Smoke first."
 }
 
 $source = Get-Content -LiteralPath $combined -Raw

@@ -10,8 +10,8 @@ if (-not $PackagePath) {
 }
 $package = (Resolve-Path -LiteralPath $PackagePath).Path
 
-[xml]$testProject = Get-Content -LiteralPath (Join-Path $PSScriptRoot "FireflyTest\FireflyTest.csproj") -Raw
-$sourceExpander = $testProject.Project.ItemGroup.PackageReference |
+[xml]$smokeProject = Get-Content -LiteralPath (Join-Path $PSScriptRoot "FireFly.Smoke\FireFly.Smoke.csproj") -Raw
+$sourceExpander = $smokeProject.Project.ItemGroup.PackageReference |
     Where-Object Include -eq "SourceExpander" |
     Select-Object -First 1
 $sourceExpanderVersion = [string]$sourceExpander.Version
@@ -33,7 +33,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Could not create the package smoke-test project." }
 
     $project = Join-Path $consumer "PackageCheck.csproj"
-    Copy-Item -LiteralPath (Join-Path $PSScriptRoot "FireflyTest\Program.cs") `
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot "FireFly.Smoke\Program.cs") `
         -Destination (Join-Path $consumer "Program.cs") -Force
 
     dotnet add $project package Soy.FireFly --version $version --no-restore | Out-Null
@@ -41,10 +41,20 @@ try {
     dotnet add $project package SourceExpander --version $sourceExpanderVersion --no-restore | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "Could not add SourceExpander to the smoke-test project." }
 
-    dotnet restore $project `
-        --source $feed `
-        --source "https://api.nuget.org/v3/index.json" `
-        --nologo
+    $nugetConfig = Join-Path $tempDir "NuGet.Config"
+    $escapedFeed = [Security.SecurityElement]::Escape($feed)
+    @"
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <clear />
+    <add key="local" value="$escapedFeed" />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+  </packageSources>
+</configuration>
+"@ | Set-Content -LiteralPath $nugetConfig -Encoding utf8NoBOM
+
+    dotnet restore $project --configfile $nugetConfig --nologo
     if ($LASTEXITCODE -ne 0) { throw "Could not restore the package smoke-test project." }
 
     & (Join-Path $PSScriptRoot "test.ps1") `

@@ -241,7 +241,7 @@ public static int[] Bfs(this Graph<Directed, NoWeight> graph, int from) {
   dotnet build FireFly.sln -c Release -p:GeneratePackageOnBuild=false
   ```
 
-- 若修改 `FireflyTest/Program.cs` 做临时验证，提交结果前恢复与任务无关的试验代码。不要手改 `bin/`、`obj/`、`.nupkg` 或生成的 `Combined.csx`。
+- 回归测试放入 `FireFly.Tests/**`。若修改 `FireFly.Smoke/Program.cs` 做临时验证，提交结果前恢复与任务无关的试验代码。不要手改 `bin/`、`obj/`、`.nupkg` 或生成的 `Combined.csx`。
 
 ## 提交前自检
 

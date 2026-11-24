@@ -36,7 +36,7 @@ jobs:
       - name: Build
         run: dotnet build FireFly.sln -c Release --no-restore -p:GeneratePackageOnBuild=false -p:ContinuousIntegrationBuild=true
 
-      - name: Run smoke tests
+      - name: Run tests
         shell: pwsh
         run: ./test.ps1 -Configuration Release
 

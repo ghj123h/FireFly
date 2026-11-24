@@ -8,14 +8,14 @@ FireFly 是一个紧凑的 C# 13 算法竞赛库。它力求让竞赛代码保�
 
 ## 安装
 
-NuGet 包 ID 为 `Soy.FireFly`，首个公开版本为 `0.1.0-alpha.1`。该版本在 NuGet 上可用时，请将它与 SourceExpander 一并安装：
+NuGet 包 ID 为 `Soy.FireFly`。请将当前预发布版本与 SourceExpander 一并安装：
 
 ```sh
-dotnet add path/to/Contest.csproj package Soy.FireFly --version 0.1.0-alpha.1
+dotnet add path/to/Contest.csproj package Soy.FireFly --version 0.1.0-alpha.2
 dotnet add path/to/Contest.csproj package SourceExpander --version 9.1.2
 ```
 
-如果该版本尚未发布，或需要基于本地检出进行开发，请克隆本仓库，并用项目引用替代上面的 `Soy.FireFly` 包安装命令：
+如果需要基于本地检出进行开发，请克隆本仓库，并用项目引用替代上面的 `Soy.FireFly` 包安装命令：
 
 ```sh
 dotnet add path/to/Contest.csproj reference path/to/FireFly/FireFly.csproj
@@ -51,7 +51,7 @@ Console.WriteLine(string.Join(" ", order!));
 - 位掩码、数组和字典辅助方法。
 - 以 `ac-library-csharp` 类型为基础的模意义下的组合数学与多项式算法。
 
-`FireflyTest` 项目包含本仓库的冒烟测试和回归检查，同时会验证 SourceExpander 的源码生成功能。
+`FireFly.Tests` 包含 xUnit 回归测试；`FireFly.Smoke` 是用于验证 SourceExpander 和 NuGet 消费方式的小型自包含程序。
 
 ## 兼容性
 
